@@ -1,18 +1,30 @@
 import VueUtils from '@openeo/vue-components/utils';
-import { Job, OpenEO, Service, UserFile, UserProcess } from '@openeo/js-client';
+import { Job, Client, Service, UserFile, UserProcess } from '@openeo/js-client';
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex';
 import contentType from 'content-type';
 import Config from '../config';
-import axios from 'axios';
+
+export const JSON_TYPES = [
+	'application/json',
+	'text/json',
+	'application/geo+json'
+];
 
 class Utils extends VueUtils {
 
+	static getLink(stac, rel, types = JSON_TYPES) {
+		if (!Array.isArray(stac.links)) {
+			return null;
+		}
+		return stac.links.find(link => link.rel === rel && (!types || types.includes(link.type))) || null;
+	}
+
 	static axios() {
-		return OpenEO.Environment.axios;
+		return Client.Environment.axios;
 	}
 
 	static saveToFile(content, filename) {
-		return OpenEO.Environment.saveToFile(content, filename);
+		return Client.Environment.saveToFile(content, filename);
 	}
 
 	static getPreviewLinkFromSTAC(stac) {

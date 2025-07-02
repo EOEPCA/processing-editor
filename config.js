@@ -65,10 +65,23 @@ export default {
 	// List of supported wizards
 	supportedWizards: [
 		{
+			component: 'Download',
+			title: 'Download Data',
+			description: 'Just download a small portion of data from an openEO Collection.',
+			requirements: capabilities => capabilities.apiType() === 'openeo'
+		},
+		{
+			component: 'UDP',
+			title: options => typeof options.process === 'string' ? options.process.replace(/@.+/, '') : 'Run UDP',
+			description: 'Executes a user-defined process',
+			requirements: capabilities => capabilities.apiType() === 'openeo'
+		},
+		{
 			component: 'SpectralIndices',
 			title: 'Compute Spectral Indices',
 			description: 'A spectral index is a mathematical equation that is applied on the various spectral bands of an image per pixel. It is often used to highlight vegetation, urban areas, snow, burn, soil, or water/drought/moisture stress. Provided by Awesome Spectral Indices (https://github.com/awesome-spectral-indices/awesome-spectral-indices).',
-			requiredProcesses: ['reduce_dimension']
+			requiredProcesses: ['reduce_dimension'],
+			requirements: capabilities => capabilities.apiType() === 'openeo'
 		}
 	],
 
@@ -88,6 +101,10 @@ export default {
 
 	// Import processes from openeo-community-examples repo
 	importCommunityExamples: true,
+
+	// Adds a button to the editor which allows to skip the login and send unauthenitcated
+	// requests to endopints that otherwise would require authentication.
+	allowIgnoreLogin: false,
 
 	// Additional process namespaces to load by default
 	processNamespaces: [],

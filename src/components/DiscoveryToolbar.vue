@@ -124,7 +124,7 @@ export default {
 			return Utils.size(this.udfRuntimes);
 		},
 		allProcesses() {
-			return this.processes.all();
+			return this.processes.all().filter(process => !process.hide);
 		},
 		searchTerm: {
 			get() {

@@ -81,7 +81,7 @@ export default {
 		}
 	},
 	async mounted() {
-		if (this.supports('listCollectionItems')) {
+		if (this.supports('listCollectionItems') || Utils.getLink(this.collection, 'items')) {
 			await this.nextItems();
 		}
 	},

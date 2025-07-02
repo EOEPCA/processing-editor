@@ -57,7 +57,7 @@ export default {
 		};
 	},
 	async created() {
-		if (this.$config.importCommunityExamples) {
+		if (this.$config.importCommunityExamples && !this.isOgcApi) {
 			try {
 				// Get folders from repo and find the processes folder
 				let response = await Utils.axios().get('https://api.github.com/repos/Open-EO/openeo-community-examples/git/trees/main');
@@ -78,6 +78,7 @@ export default {
 		}
 	},
 	computed: {
+		...Utils.mapGetters(['isOgcApi']),
 		processId() {
 			if (Utils.isObject(this.process)) {
 				if (this.process.id) {
