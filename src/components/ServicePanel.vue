@@ -193,8 +193,6 @@ export default {
 					data.description,
 					data.enabled,
 					data.configuration,
-					data.plan,
-					data.budget,
 					data
 				]);
 				if (!quiet) {

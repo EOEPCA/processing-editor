@@ -17,18 +17,21 @@
 					<i class="fas fa-bullhorn"></i>
 					<span>Please note that this feature is <strong>experimental</strong> and there are chances that the generated models won't work.</span>
 				</div>
-				<p>This wizard helps you to create openEO processes in a simple way for some common use cases.</p>
-				<p>Which use case do you want to work on today?</p>
-				<ul>
-					<template v-for="usecase in usecases">
-						<li v-if="!usecase.hide" :key="usecase.component" @click="start(usecase)" class="element">
-							<div class="summary">
-								<strong>{{ getUsecaseTitle(usecase) }}</strong>
-								<small>{{ usecase.description }}</small>
-							</div>
-						</li>
-					</template>
-				</ul>
+				<p>This wizard helps you to access or process data in a simple way for some common use cases.</p>
+				<template v-if="usecases.length > 0">
+					<p>Which use case do you want to work on today?</p>
+					<ul>
+						<template v-for="usecase in usecases">
+							<li v-if="!usecase.hide" :key="usecase.component" @click="start(usecase)" class="element">
+								<div class="summary">
+									<strong>{{ getUsecaseTitle(usecase) }}</strong>
+									<small>{{ usecase.description }}</small>
+								</div>
+							</li>
+						</template>
+					</ul>
+				</template>
+				<p v-else>Sorry, there are no use cases that match with the capabilities of the server connected to.</p>
 			</div>
 		</template>
 		<template #footer>
@@ -60,7 +63,7 @@ import WizardStep from '../wizards/components/WizardStep.vue';
 import Utils from '../../utils';
 import Config from '../../../config';
 import EventBusMixin from '../EventBusMixin';
-import { CancellableRequestError } from '../cancellableRequest';
+import { CancellableRequestError, showCancellableRequestError } from '../cancellableRequest';
 
 const wizards = Config.supportedWizards || [];
 let components = {
@@ -81,19 +84,6 @@ export default {
 		return {
 			show: true,
 			selected: null,
-			usecases: [
-				{
-					component: 'Download',
-					title: 'Download Data',
-					description: 'Just download a small portion of data.'
-				},
-				{
-					component: 'UDP',
-					title: () => typeof this.options.process === 'string' ? this.options.process.replace(/@.+/, '') : 'Run UDP',
-					description: 'Executes a user-defined process'
-				},
-				...(Config.supportedWizards || []) // ToDo: only show usecases that are supported based on processes (requiredProcesses)
-			],
 			activeTabIndex: 0,
 			currentPercentage: 0,
 			maxStep: 0,
@@ -117,7 +107,13 @@ export default {
 		}
 	},
 	computed: {
-		...Utils.mapGetters(['supports']),
+		...Utils.mapGetters(['supports', 'capabilities']),
+		usecases() {
+			// ToDo: only show usecases that are supported based on processes (requiredProcesses)
+			const wizards = (Array.isArray(Config.supportedWizards) ? Config.supportedWizards : [])
+				.filter(w => (!w.requirements || w.requirements(this.capabilities)));
+			return wizards;
+		},
 		supportsJobs() {
 			return this.supports('createJob') && this.supports('startJob');
 		},
@@ -187,7 +183,7 @@ export default {
 		},
 		getUsecaseTitle(usecase) {
 			if (typeof usecase.title == 'function') {
-				return usecase.title();
+				return usecase.title(this.options);
 			}
 			else {
 				return usecase.title;
@@ -251,12 +247,7 @@ export default {
 						.then(this.close)
 						.catch(error => {
 							if (error instanceof CancellableRequestError) {
-								if (error.isError) {
-									Utils.exception(this, error, error.title);
-								}
-								else {
-									Utils.ok(this, error.message, error.title);
-								}
+								showCancellableRequestError(this, error);
 								if (error.close) {
 									this.close();
 								}

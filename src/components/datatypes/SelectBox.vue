@@ -102,6 +102,8 @@ export default {
 				case 'udf-runtime-version':
 					state = this.context in this.$store.state.udfRuntimes ? Object.keys(this.$store.state.udfRuntimes[this.context].versions) : [];
 					break;
+				default:
+					state = this.options;
 			}
 
 			if (typeof this.optionFilter === 'function' && state && typeof state === 'object') {

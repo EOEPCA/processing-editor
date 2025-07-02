@@ -180,13 +180,7 @@ export default {
 		},
 		async executeProcess(options = {}) {
 			const callback = async (abortController) => {
-				const result = await this.connection.computeResult(
-					this.process,
-					options.plan || null,
-					options.budget || null,
-					abortController,
-					options
-				);
+				const result = await this.connection.computeResult(this.process, abortController, options);
 				this.broadcast('viewSyncResult', result);
 			};
 			try {
@@ -233,8 +227,6 @@ export default {
 					process,
 					data.title,
 					data.description,
-					data.plan,
-					data.budget,
 					data
 				]);
 				this.jobAfterCreation(job, queue);
@@ -304,7 +296,7 @@ export default {
 		async showJobInfo(job) {
 			await this.refreshElement(job, async (updatedJob) => {
 				let result = null;
-				if (updatedJob.status === 'finished') {
+				if (!updatedJob.extra.ogcapi && updatedJob.status === 'finished') {
 					try {
 						result = await updatedJob.getResultsAsStac();
 						result = StacMigrate.stac(result, false);
@@ -396,7 +388,18 @@ export default {
 				Utils.exception(this, error, 'Cancel Job Error: ' + Utils.getResourceTitle(job));
 			}
 		},
+		handleOgcResults(job) {
+			if (job.extra.ogcapi) {
+				let url = this.connection.baseUrl + '/jobs/' + job.id + '/results';
+				window.open(url, '_blank');
+				return true;
+			}
+			return false;
+		},
 		async viewResults(job) {
+			if (this.handleOgcResults(job)) {
+				return;
+			}
 			// Doesn't need to go through job store as it doesn't change job-related data
 			try {
 				let stac = await job.getResultsAsStac();
@@ -407,6 +410,9 @@ export default {
 			}
 		},
 		async downloadResults(job) {
+			if (this.handleOgcResults(job)) {
+				return;
+			}
 			// Doesn't need to go through job store as it doesn't change job-related data
 			try {
 				let result = await job.getResultsAsStac();

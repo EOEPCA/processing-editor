@@ -113,7 +113,7 @@ export default {
 	},
 	methods: {
 		async loadQueryables() {
-			if (!this.supports('describeCollectionQueryables') || this.queryables) {
+			if ((!this.supports('describeCollectionQueryables') && !Utils.getLink(this.collection, 'http://www.opengis.net/def/rel/ogc/1.0/queryables')) || this.queryables) {
 				return;
 			}
 			try {
@@ -138,7 +138,7 @@ export default {
 			this.itemsPage += step;
 		},
 		async nextItems() {
-			if (!this.supports('listCollectionItems')) {
+			if (!this.supports('listCollectionItems') && !Utils.getLink(this.collection, 'items')) {
 				return;
 			}
 			if (!this.itemPages) {
