@@ -5,9 +5,9 @@ export default {
 	serverUrl: '',
 
 	// The name of the service
-	serviceName: 'openEO',
+	serviceName: 'EOEPCA',
 	// The name of the app
-	appName: 'Web Editor',
+	appName: 'Processing Editor',
 
 	// Skip login and automatically load up the "discovery mode"
 	skipLogin: false,
@@ -104,7 +104,7 @@ export default {
 
 	// Adds a button to the editor which allows to skip the login and send unauthenitcated
 	// requests to endopints that otherwise would require authentication.
-	allowIgnoreLogin: false,
+	allowIgnoreLogin: true,
 
 	// Additional process namespaces to load by default
 	processNamespaces: [],
