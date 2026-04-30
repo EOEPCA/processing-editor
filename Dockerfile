@@ -10,6 +10,6 @@ WORKDIR /src/processing-editor
 RUN npm install
 RUN npm run build
 
-# Copy build folder and run with nginx
-FROM nginx:1.28.0-alpine
+# Copy build folder and run with nginx (unprivileged, runs as uid 101)
+FROM nginxinc/nginx-unprivileged:1.28.0-alpine
 COPY --from=build /src/processing-editor/dist /usr/share/nginx/html
