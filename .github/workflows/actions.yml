@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+env:
+  CLIENT_URL: '/processing-editor/'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,4 +22,3 @@ jobs:
           exclude_assets: 'report.html'
           user_name: 'openEO CI'
           user_email: openeo.ci@uni-muenster.de
-          cname: editor.openeo.org
